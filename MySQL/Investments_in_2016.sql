@@ -1,0 +1,23 @@
+-- 585. Investments in 2016
+
+WITH cnt2015 as 
+(SELECT
+    *,
+    COUNT(*) OVER(PARTITION BY tiv_2015) as cnt
+FROM Insurance
+)
+SELECT
+    ROUND(SUM(tiv_2016), 2) as tiv_2016
+FROM cnt2015
+WHERE cnt >= 2
+AND CONCAT(lat,lon) NOT IN (SELECT CONCAT(lat,lon) FROM Insurance WHERE pid != cnt2015.pid)
+
+/*
+--SIMPLER SOLUTION
+
+SELECT ROUND(SUM(TIV_2016), 2) AS TIV_2016 FROM insurance 
+WHERE PID IN 
+(SELECT PID FROM insurance GROUP BY LAT, LON HAVING COUNT(*) = 1) 
+AND PID NOT IN
+(SELECT PID FROM insurance GROUP BY TIV_2015 HAVING COUNT(*) = 1)
+*/
